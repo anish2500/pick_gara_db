@@ -14,7 +14,8 @@ class PlaceRepository{
         if(category){
             filter.category = category; 
         }
-        return (await Place.find(filter)).toSorted({ createdAt: -1});
+        return await Place.find(filter).sort({ createdAt: -1 });
+
     }
 
     async findById(id){

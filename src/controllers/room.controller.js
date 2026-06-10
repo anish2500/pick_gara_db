@@ -66,3 +66,54 @@ export const joinRoom = async (req, res) => {
 }
 
 
+export const getActiveRooms = async (req, res) =>{
+    try {
+        const rooms = await roomRepository.findActiveByUser(req.userId); 
+
+
+        res.json({
+            count: rooms.length, 
+            rooms, 
+        });
+
+
+    }catch (error){
+        res.status(500).json({
+            message: 'Server error', error: error.message
+        });
+    }
+}
+
+export const getRoomById = async (req, res) => {
+    try {
+
+
+        const room = await roomRepository.findById(req.params.id);
+
+        if (!room) {
+            return res.status(404).json({ message: 'Room not found' });
+        }
+
+        const isMember = room.members.some(
+            (member) => member._id.toString() === req.userId.toString()
+        );
+
+        if (!isMember) {
+            return res.status(403).json({ message: 'You are not a member of this room' });
+        }
+
+
+        const places = await placeRepository.findAll(room.category);
+
+        res.json({
+            room,    
+            places,   
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+
