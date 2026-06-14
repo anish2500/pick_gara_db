@@ -24,13 +24,14 @@ class RoomRepository {
     }
 
 
-    async addMember(roomId, userId){
-       return await Room.findByIdAndUpdate(
-         roomId, 
-        { $addToSet: {members: userId}}, 
-        {new : true}
-       );
-    }
+ async addMember(roomId, userId) {
+    return await Room.findByIdAndUpdate(
+        roomId,
+        { $addToSet: { members: userId } },
+        { returnDocument: 'after' }  
+    );
+}
+
 }
 
 export default new RoomRepository();

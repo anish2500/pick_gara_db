@@ -1,5 +1,6 @@
 import roomRepository from "../repositories/room.repository.js";
 import placeRepository from "../repositories/place.repository.js";
+import voteRepository from "../repositories/vote.repository.js";
 
 
 export const createRoom = async (req, res) =>{
@@ -83,10 +84,8 @@ export const getActiveRooms = async (req, res) =>{
         });
     }
 }
-
 export const getRoomById = async (req, res) => {
     try {
-
 
         const room = await roomRepository.findById(req.params.id);
 
@@ -94,6 +93,7 @@ export const getRoomById = async (req, res) => {
             return res.status(404).json({ message: 'Room not found' });
         }
 
+       
         const isMember = room.members.some(
             (member) => member._id.toString() === req.userId.toString()
         );
@@ -102,18 +102,28 @@ export const getRoomById = async (req, res) => {
             return res.status(403).json({ message: 'You are not a member of this room' });
         }
 
-
+       
         const places = await placeRepository.findAll(room.category);
 
+
+        const membersVoted = await voteRepository.countUniqueVoters(room._id);
+        const totalMembers = room.members.length;
+
+
+        const placeTallies = await voteRepository.getPlaceTallies(room._id);
+
         res.json({
-            room,    
-            places,   
+            room,
+            places,
+            voteStats: {
+                membersVoted,
+                totalMembers,
+                display: `${membersVoted}/${totalMembers}`,  
+                placeTallies,   
+            },
         });
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
-
-
