@@ -37,6 +37,22 @@ class RoomRepository {
         return await Room.findByIdAndDelete(id); 
     }
 
+    async findHostedByUser(userId){
+        return await Room.find({
+            hostId: userId, 
+            status: 'active', 
+
+        }).sort({ createdAt: -1});
+    }
+
+    async findJoinedByUser(userId){
+        return await Room.find({
+            members: userId, 
+            hostId: {$ne: userId}, 
+            status: 'active', 
+        }).sort({ createdAt: -1});
+    }
+
 }
 
 export default new RoomRepository();
