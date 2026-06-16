@@ -54,6 +54,17 @@ export const joinRoom = async (req, res) => {
                 message: 'Room not found or no longer exists'
             });
         }
+        const isAlreadyMember = room.members.some(
+            (memberId) => memberId.toString() === req.userId.toString()
+        );
+
+        if(isAlreadyMember){
+            const existingRoom = await roomRepository.findById(room._id);
+            return res.json({
+                message: 'Rejoined room successfully', 
+                room: existingRoom, 
+            }); 
+        }
 
         const updatedRoom = await roomRepository.addMember(room._id, req.userId); 
 
@@ -125,5 +136,26 @@ export const getRoomById = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+export const deleteRoom = async(req, res) =>{
+    try {
+        const room = await roomRepository.findById(req.params.id); 
+
+        if(!room){
+            return res.status(404).json({ message: 'Room not found'}); 
+        }
+
+        if(room.hostId.toString() !== req.userId.toString()){
+            return res.status(403).json({ message: 'Only the host can delete this room'});
+        }
+
+        await roomRepository.deleteRoom(req.params.id); 
+
+        res.json({ message: 'Room deleted successfully'});
+    } catch (error){
+        res.status(500).json({ message: 'Server error', error: error.message});
     }
 };
