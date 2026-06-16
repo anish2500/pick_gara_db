@@ -78,23 +78,25 @@ export const joinRoom = async (req, res) => {
 }
 
 
-export const getActiveRooms = async (req, res) =>{
+export const getActiveRooms = async (req, res) => {
     try {
-        const rooms = await roomRepository.findActiveByUser(req.userId); 
 
+        // Rooms this user created — shown as "Your Rooms" on host dashboard
+        const hostedRooms = await roomRepository.findHostedByUser(req.userId);
+
+        // Rooms this user joined but did not create — shown as "Active Sessions"
+        const joinedRooms = await roomRepository.findJoinedByUser(req.userId);
 
         res.json({
-            count: rooms.length, 
-            rooms, 
+            hostedRooms,   // frontend uses this for "Your Rooms" section
+            joinedRooms,   // frontend uses this for "Active Sessions" section
         });
 
-
-    }catch (error){
-        res.status(500).json({
-            message: 'Server error', error: error.message
-        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
+
 export const getRoomById = async (req, res) => {
     try {
 
