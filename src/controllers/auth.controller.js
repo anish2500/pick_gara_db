@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import cloudinary from '../config/cloudinary.js';
 import { registerSchema, loginSchema } from '../validations/auth.validation.js';
 import userRepository from '../repositories/auth.repository.js';
 export const register = async (req, res) => {
@@ -30,6 +31,7 @@ export const register = async (req, res) => {
         id: user._id,
         fullName: user.fullName, 
         email: user.email,
+        profileImage: user.profileImage || null, 
     
       }
     });
@@ -70,6 +72,7 @@ export const login = async (req, res) => {
         id: user._id,
         fullName: user.fullName, 
         email: user.email,
+        profileImage: user.profileImage || null, 
 
        
       }
@@ -84,3 +87,60 @@ export const login = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+export const getProfile = async (req, res) =>{
+  try {
+    const user = await userRepository.findById(req.userId); 
+
+
+    if(!user){
+      return res.status(404).json({ message: 'User not found'});
+
+    }
+
+    res.json({
+      user: {
+        id: user._id, 
+        fullName: user.fullName, 
+        email: user.email, 
+        profileImage: user.profileImage || null, 
+      },
+    });
+  } catch (error){
+    res.status(500).json({ message: 'Server error', error: error.message});
+  }
+};
+
+
+
+export const uploadAvatar = async(req, res)=>{
+  try {
+    if(!req.file){
+      return res.status(400).json({ message: 'No image file provided'});
+    }
+
+    const localFilePath = req.file.path; 
+
+
+    const cloudinaryResult = await cloudinary.uploader.upload(localFilePath, {
+      folder: 'pick_gara/avatars', 
+      transformation: [{ width: 300, height: 300, crop: 'fill'}], 
+
+    });
+
+
+    const user = await userRepository.updateById(req.userId, {
+      profileImage: cloudinaryResult.secure_url, 
+    }); 
+
+    res.json({
+      message: 'Profile image updated successfully', 
+      profileImage: user.profileImage, 
+      localPath: localFilePath, 
+    });
+  } catch (error){
+    res.status(500).json({ message: 'Server error', error: error.message});
+  }
+};
+
