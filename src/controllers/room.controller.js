@@ -80,16 +80,14 @@ export const joinRoom = async (req, res) => {
 
 export const getActiveRooms = async (req, res) => {
     try {
+        const limit = parseInt(req.query.limit) || 0;
 
-        // Rooms this user created — shown as "Your Rooms" on host dashboard
-        const hostedRooms = await roomRepository.findHostedByUser(req.userId);
-
-        // Rooms this user joined but did not create — shown as "Active Sessions"
-        const joinedRooms = await roomRepository.findJoinedByUser(req.userId);
+        const hostedRooms = await roomRepository.findHostedByUser(req.userId, limit);
+        const joinedRooms = await roomRepository.findJoinedByUser(req.userId, limit);
 
         res.json({
-            hostedRooms,   // frontend uses this for "Your Rooms" section
-            joinedRooms,   // frontend uses this for "Active Sessions" section
+            hostedRooms,
+            joinedRooms,
         });
 
     } catch (error) {

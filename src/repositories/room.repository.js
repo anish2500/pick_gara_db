@@ -37,20 +37,23 @@ class RoomRepository {
         return await Room.findByIdAndDelete(id); 
     }
 
-    async findHostedByUser(userId){
-        return await Room.find({
-            hostId: userId, 
-            status: 'active', 
-
-        }).sort({ createdAt: -1});
+    async findHostedByUser(userId, limit = 0){
+        const query = Room.find({
+            hostId: userId,
+            status: 'active',
+        }).sort({ createdAt: -1 });
+        if (limit > 0) query.limit(limit);
+        return await query;
     }
 
-    async findJoinedByUser(userId){
-        return await Room.find({
-            members: userId, 
-            hostId: {$ne: userId}, 
-            status: 'active', 
-        }).sort({ createdAt: -1});
+    async findJoinedByUser(userId, limit = 0){
+        const query = Room.find({
+            members: userId,
+            hostId: { $ne: userId },
+            status: 'active',
+        }).sort({ createdAt: -1 });
+        if (limit > 0) query.limit(limit);
+        return await query;
     }
 
 }
