@@ -1,18 +1,18 @@
-import userRepository from '../repositories/auth.repository.js';
+import bookmarkRepository from '../repositories/bookmark.repository.js';
 
 export const toggleBookmark = async (req, res) => {
     try {
         const { placeId } = req.params;
         const userId = req.userId;
 
-        const bookmarks = await userRepository.getBookmarks(userId);
+        const bookmarks = await bookmarkRepository.getBookmarks(userId);
         const isBookmarked = bookmarks.some((p) => p._id.toString() === placeId);
 
         let updatedUser;
         if (isBookmarked) {
-            updatedUser = await userRepository.removeBookmark(userId, placeId);
+            updatedUser = await bookmarkRepository.removeBookmark(userId, placeId);
         } else {
-            updatedUser = await userRepository.addBookmark(userId, placeId);
+            updatedUser = await bookmarkRepository.addBookmark(userId, placeId);
         }
 
         res.json({
@@ -27,7 +27,7 @@ export const toggleBookmark = async (req, res) => {
 
 export const getBookmarks = async (req, res) => {
     try {
-        const bookmarks = await userRepository.getBookmarks(req.userId);
+        const bookmarks = await bookmarkRepository.getBookmarks(req.userId);
         res.json({ bookmarks });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
