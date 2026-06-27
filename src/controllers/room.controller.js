@@ -3,37 +3,41 @@ import placeRepository from "../repositories/place.repository.js";
 import voteRepository from "../repositories/vote.repository.js";
 
 
-export const createRoom = async (req, res) =>{
+export const createRoom = async (req, res) => {
     try {
-        const { name, category} = req.body; 
+        const { name, category } = req.body;
 
-        if(!name || !category){
-            return res.status(400).json({ message: 'Name and category are required '});
-
+        if (!name || !category) {
+            return res.status(400).json({ message: 'Name and category are required' });
         }
 
-        if (!['cafe', 'momo', 'hiking'].includes(category)){
-            return res.status(400).json({ message: 'Category must be cafe, momo or hiking'});
-
+        if (!['cafe', 'momo', 'hiking'].includes(category)) {
+            return res.status(400).json({ message: 'Category must be cafe, momo or hiking' });
         }
 
+        const existingRooms = await roomRepository.findHostedByUser(req.userId);
+        if (existingRooms.length > 0) {
+            return res.status(400).json({
+                message: 'You already have an active room. Delete it before creating a new one'
+            });
+        }
 
         const room = await roomRepository.create({
-            name, 
-            category, 
-            hostId: req.userId, 
-            members: [req.userId], 
-
+            name,
+            category,
+            hostId: req.userId,
+            members: [req.userId],
         });
 
         res.status(201).json({
-            message: 'Room created successfully', 
-            room, 
+            message: 'Room created successfully',
+            room,
         });
-    } catch (error){
-        res.status(500).json({ message: 'Server error', error: error.message});
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 
 export const joinRoom = async (req, res) => {
