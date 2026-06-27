@@ -6,6 +6,7 @@ import authRoutes from './src/routes/auth.routes.js';
 import adminRoutes from './src/routes/admin.routes.js';
 import placeRoutes from './src/routes/place.routes.js'; 
 import roomRoutes from './src/routes/room.routes.js';
+import userRoutes from './src/routes/user.routes.js';
 dotenv.config();
 
 
@@ -22,7 +23,8 @@ app.get('/', (req, res)=>{
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/places', placeRoutes); 
-app.use('/api/rooms', roomRoutes); 
+app.use('/api/rooms', roomRoutes);
+app.use('/api/users', userRoutes);
 connectDB();
 app.listen(PORT, ()=>{
     console.log(`Server running at ${PORT}` );

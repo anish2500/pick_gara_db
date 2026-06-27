@@ -13,10 +13,31 @@ class UserRepository {
 
   async updateById(id, updateData){
     return await User.findByIdAndUpdate(
-      id, 
-      updateData, 
+      id,
+      updateData,
       { returnDocument: 'after'}
     );
+  }
+
+  async addBookmark(userId, placeId) {
+    return await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { bookmarks: placeId } },
+      { returnDocument: 'after' }
+    ).populate('bookmarks');
+  }
+
+  async removeBookmark(userId, placeId) {
+    return await User.findByIdAndUpdate(
+      userId,
+      { $pull: { bookmarks: placeId } },
+      { returnDocument: 'after' }
+    ).populate('bookmarks');
+  }
+
+  async getBookmarks(userId) {
+    const user = await User.findById(userId).populate('bookmarks');
+    return user ? user.bookmarks : [];
   }
 }
 export default new UserRepository();

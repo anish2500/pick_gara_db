@@ -23,9 +23,13 @@ const userSchema = new mongoose.Schema({
         minlength: 6
     }, 
     profileImage: {
-        type: String, 
-        default: null, 
-    }, 
+        type: String,
+        default: null,
+    },
+    bookmarks: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Place',
+    }],
 }, {timestamps: true});
 
 userSchema.pre("save", async function(next){
