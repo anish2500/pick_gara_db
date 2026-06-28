@@ -127,6 +127,9 @@ export const getRoomById = async (req, res) => {
 
         const placeTallies = await voteRepository.getPlaceTallies(room._id);
 
+        const superVotedPlaces = await voteRepository.getSuperVotedPlaces(room._id);
+        const hasUsedSuperVote = await voteRepository.hasSuperVoted(room._id, req.userId);
+
         res.json({
             room,
             places,
@@ -135,6 +138,13 @@ export const getRoomById = async (req, res) => {
                 totalMembers,
                 display: `${membersVoted}/${totalMembers}`,  
                 placeTallies,   
+            },
+            superVote: {
+                hasUsedSuperVote, 
+                superVotedPlaces: superVotedPlaces.map((sv)=>({
+                    place: sv.placeId, 
+                    votedBy: sv.userId?.fullName || 'Someone',
+                })),
             },
         });
 
