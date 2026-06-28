@@ -41,6 +41,15 @@ export const castVote = async (req, res) => {
             return res.status(400).json({ message: 'You already voted on this place'}); 
         }
 
+        if(vote ==='superlike'){
+            const alreadySuperVoted = await voteRepository.hasSuperVoted(roomId, req.userId);
+            
+        if(alreadySuperVoted){
+            return res.status(403).json({ message: 'You have already used your Super Vote in this room '});
+        }
+        }
+
+
         await voteRepository.create({
             roomId, 
             userId: req.userId, 
@@ -59,6 +68,7 @@ export const castVote = async (req, res) => {
                 totalMembers, 
                 display: `${membersVoted}/${totalMembers}`, 
             },
+            hasSuperVote: vote ==='superlike' ? true: await voteRepository.hasSuperVoted(roomId, req.userId),
         });
     } catch (error){
         res.status(500).json({ message: 'Server error', error: error.message});

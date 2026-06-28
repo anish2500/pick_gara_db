@@ -55,6 +55,28 @@ class VoteRepository {
         ]);
     }
 
+
+    async hasSuperVoted(roomId, userId){
+        const existing = await Vote.findOne({
+            roomId, 
+            userId, 
+            vote: 'superlike', 
+        });
+
+        return !!existing;
+    }
+
+
+    async getSuperVotedPlaces(roomId){
+        return await Vote.find({
+            roomId: new mongoose.Types.ObjectId(roomId), 
+            vote: 'superlike', 
+
+        })
+        .populate('placeId')
+        .populate('userId', 'fullName');
+    }
+
  
 
 
