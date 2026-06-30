@@ -7,6 +7,7 @@ import adminRoutes from './src/routes/admin.routes.js';
 import placeRoutes from './src/routes/place.routes.js'; 
 import roomRoutes from './src/routes/room.routes.js';
 import bookmarkRoutes from './src/routes/bookmark.routes.js';
+import matchRoutes from './src/routes/match.routes.js';
 dotenv.config();
 
 
@@ -25,6 +26,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/places', placeRoutes); 
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
+app.use('/api/matches', matchRoutes);
 connectDB();
 app.listen(PORT, ()=>{
     console.log(`Server running at ${PORT}` );
