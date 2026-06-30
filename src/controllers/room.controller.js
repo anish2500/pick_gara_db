@@ -166,9 +166,67 @@ export const deleteRoom = async(req, res) =>{
             return res.status(403).json({ message: 'Only the host can delete this room'});
         }
 
+        if (room.status === 'completed'){
+            return res.status(400).json({ message: 'Cannot delete a completed session'});
+        }
+
         await roomRepository.deleteRoom(req.params.id); 
 
         res.json({ message: 'Room deleted successfully'});
+    } catch (error){
+        res.status(500).json({ message: 'Server error', error: error.message});
+    }
+};
+
+
+export const completeRoom = async (req, res) => {
+    try {
+        const room = await roomRepository.findById(req.params.id);
+
+
+        if(!room){
+            return res.status(404).json({ message: 'Room not found'});
+        }
+
+        if (room.hostId.toString() !== req.userId.toString()) {
+            return res.status(403).json({ message: 'Only the host can complete this room' });
+        }
+
+        if(room.status === 'completed'){
+            return res.status(400).json({message: 'Room is already completed'});
+
+
+        }
+
+        const tallies = await voteRepository.getPlaceTallies(room._id);
+        if(!tallies || tallies.length ===0){
+            return res.status(400).json({ message: 'No votes cast yet -cannot complete the session'});
+
+
+        }
+
+        const sorted = tallies.sort((a, b) => b.likes - a.likes);
+        const winnerId = sorted[0]._id; 
+
+        const updatedRoom = await roomRepository.completeRoom(room._id, winnerId); 
+
+        res.json({ message: 'Session completed successfully', 
+            room: updatedRoom, 
+        });
+
+    } catch (error){
+        res.status(500).json({ message: 'Server error', error: error.message});
+    }
+};
+
+
+export const getCompletedRooms = async (req, res) =>{
+    try {
+        const limit = parseInt(req.query.limit) || 0;
+        const completedRooms = await roomRepository.findCompletedByUser(req.userId, limit);
+
+
+        res.json({ completedRooms});
     } catch (error){
         res.status(500).json({ message: 'Server error', error: error.message});
     }

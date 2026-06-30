@@ -40,6 +40,11 @@ const roomSchema = new mongoose.Schema({
         enum: ['active', 'completed'], 
         default: 'active', 
     }, 
+    winnerId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Place', 
+        default: null, 
+    }, 
 }, { timestamps: true});
 
 
