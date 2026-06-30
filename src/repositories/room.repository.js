@@ -56,6 +56,26 @@ class RoomRepository {
         return await query;
     }
 
+    async completeRoom(roomId, winnerId){
+        return await Room.findByIdAndUpdate(
+            roomId, 
+            { status: 'completed', winnerId}, 
+            { new: true}
+        ).populate('winnerId');
+    }
+
+    async findCompletedByUser(userId, limit = 0){
+        const query = Room.find({
+            members: userId, 
+            status: 'completed', 
+        })
+        .populate('winnerId')
+        .sort({ updatedAt: -1});
+
+        if(limit>0) query.limit(limit); 
+        return await query; 
+    }
+
 }
 
 export default new RoomRepository();
